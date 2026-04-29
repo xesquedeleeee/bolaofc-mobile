@@ -41,6 +41,9 @@ export default function Bets() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [predictedHome, setPredictedHome] = useState('');
   const [predictedAway, setPredictedAway] = useState('');
+  const [editingBet, setEditingBet] = useState<Bet | null>(null);
+  const [editHome, setEditHome] = useState('');
+  const [editAway, setEditAway] = useState('');
 
   const { data: bets, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['bets'],
@@ -64,6 +67,17 @@ export default function Bets() {
     onError: () => Alert.alert('Erro', 'Não foi possível registrar o palpite.'),
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: any) => api.put(`/bets/${id}`, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['bets'] });
+      setEditingBet(null);
+      setEditHome('');
+      setEditAway('');
+    },
+    onError: () => Alert.alert('Erro', 'Não foi possível atualizar o palpite.'),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/bets/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['bets'] }),
@@ -79,6 +93,26 @@ export default function Bets() {
       matchId: selectedMatch.id,
       predictedHome: Number(predictedHome),
       predictedAway: Number(predictedAway),
+    });
+  }
+
+  function handleEdit(bet: Bet) {
+    setEditingBet(bet);
+    setEditHome(String(bet.predictedHome));
+    setEditAway(String(bet.predictedAway));
+  }
+
+  function handleUpdate() {
+    if (!editingBet || editHome === '' || editAway === '') {
+      Alert.alert('Atenção', 'Preencha os dois palpites.');
+      return;
+    }
+    updateMutation.mutate({
+      id: editingBet.id,
+      data: {
+        predictedHome: Number(editHome),
+        predictedAway: Number(editAway),
+      },
     });
   }
 
@@ -156,7 +190,6 @@ export default function Bets() {
                   />
                 </View>
               </View>
-
               <TouchableOpacity style={styles.submitButton} onPress={handleCreate}>
                 <Text style={styles.submitButtonText}>
                   {createMutation.isPending ? 'Registrando...' : 'Registrar Palpite'}
@@ -167,6 +200,7 @@ export default function Bets() {
         </View>
       )}
 
+      {/* Modal seleção de partida */}
       <Modal visible={showMatchPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -203,6 +237,58 @@ export default function Bets() {
         </View>
       </Modal>
 
+      {/* Modal edição de palpite */}
+      <Modal visible={!!editingBet} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>✏️ Editar Palpite</Text>
+            {editingBet?.match && (
+              <Text style={styles.editMatchName}>
+                {editingBet.match.homeTeam} vs {editingBet.match.awayTeam}
+              </Text>
+            )}
+            <View style={styles.scoreRow}>
+              <View style={styles.scoreTeam}>
+                <Text style={styles.scoreTeamName}>Casa</Text>
+                <TextInput
+                  style={styles.scoreInput}
+                  placeholder="0"
+                  placeholderTextColor={Colors.textMuted}
+                  value={editHome}
+                  onChangeText={setEditHome}
+                  keyboardType="numeric"
+                  textAlign="center"
+                />
+              </View>
+              <Text style={styles.scoreSeparator}>x</Text>
+              <View style={styles.scoreTeam}>
+                <Text style={styles.scoreTeamName}>Fora</Text>
+                <TextInput
+                  style={styles.scoreInput}
+                  placeholder="0"
+                  placeholderTextColor={Colors.textMuted}
+                  value={editAway}
+                  onChangeText={setEditAway}
+                  keyboardType="numeric"
+                  textAlign="center"
+                />
+              </View>
+            </View>
+            <TouchableOpacity style={styles.submitButton} onPress={handleUpdate}>
+              <Text style={styles.submitButtonText}>
+                {updateMutation.isPending ? 'Salvando...' : 'Salvar Palpite'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalClose}
+              onPress={() => setEditingBet(null)}
+            >
+              <Text style={styles.modalCloseText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <FlatList
         data={bets}
         keyExtractor={(item) => item.id}
@@ -217,15 +303,24 @@ export default function Bets() {
                   ? `${item.match.homeTeam} vs ${item.match.awayTeam}`
                   : 'Partida'}
               </Text>
-              <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                <Text style={styles.deleteText}>🗑️</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.betRow}>
-              <Text style={styles.betScore}>
-                Palpite: {item.predictedHome} x {item.predictedAway}
-              </Text>
               <Text style={styles.points}>⭐ {item.points} pts</Text>
+            </View>
+            <Text style={styles.betScore}>
+              Palpite: {item.predictedHome} x {item.predictedAway}
+            </Text>
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => handleEdit(item)}
+              >
+                <Text style={styles.editButtonText}>✏️ Editar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => handleDelete(item.id)}
+              >
+                <Text style={styles.deleteButtonText}>🗑️ Deletar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -334,6 +429,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
+    marginBottom: 8,
   },
   submitButtonText: {
     color: Colors.white,
@@ -356,6 +452,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: Colors.text,
+    marginBottom: 8,
+  },
+  editMatchName: {
+    fontSize: 14,
+    color: Colors.textMuted,
     marginBottom: 16,
   },
   matchOption: {
@@ -378,7 +479,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 8,
   },
   modalCloseText: {
     color: Colors.text,
@@ -400,7 +501,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   matchInfo: {
     fontSize: 15,
@@ -408,22 +509,42 @@ const styles = StyleSheet.create({
     color: Colors.text,
     flex: 1,
   },
-  deleteText: {
-    fontSize: 20,
-  },
-  betRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   betScore: {
     fontSize: 14,
     color: Colors.textMuted,
+    marginBottom: 12,
   },
   points: {
     fontSize: 14,
     fontWeight: 'bold',
     color: Colors.warning,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  editButton: {
+    flex: 1,
+    backgroundColor: Colors.primary,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  editButtonText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  deleteButton: {
+    flex: 1,
+    backgroundColor: Colors.cardLight,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: Colors.textMuted,
+    fontSize: 13,
   },
   empty: {
     color: Colors.textMuted,
