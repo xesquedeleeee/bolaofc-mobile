@@ -40,7 +40,7 @@ export default function ChampionshipDetail() {
     queryFn: () => api.get(`/championships/${id}`).then((r) => r.data),
   });
 
-  const { data: matches, isLoading: loadingMatches } = useQuery({
+  const { data: matches, isLoading: loadingMatches, refetch, isRefetching } = useQuery({
     queryKey: ['matches', id],
     queryFn: () => api.get(`/championships/${id}/matches`).then((r) => r.data),
   });
@@ -58,8 +58,7 @@ export default function ChampionshipDetail() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ matchId, data }: any) =>
-      api.put(`/matches/${matchId}`, data),
+    mutationFn: ({ matchId, data }: any) => api.put(`/matches/${matchId}`, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['matches', id] });
       setEditingId(null);
@@ -95,21 +94,14 @@ export default function ChampionshipDetail() {
     }
     updateMutation.mutate({
       matchId,
-      data: {
-        homeScore: Number(homeScore),
-        awayScore: Number(awayScore),
-      },
+      data: { homeScore: Number(homeScore), awayScore: Number(awayScore) },
     });
   }
 
   function handleDelete(matchId: string) {
     Alert.alert('Confirmar', 'Deseja deletar esta partida?', [
       { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Deletar',
-        style: 'destructive',
-        onPress: () => deleteMutation.mutate(matchId),
-      },
+      { text: 'Deletar', style: 'destructive', onPress: () => deleteMutation.mutate(matchId) },
     ]);
   }
 
@@ -173,6 +165,8 @@ export default function ChampionshipDetail() {
         data={matches}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        onRefresh={refetch}
+        refreshing={isRefetching}
         renderItem={({ item }: { item: Match }) => (
           <View style={styles.card}>
             <View style={styles.matchRow}>
@@ -189,7 +183,7 @@ export default function ChampionshipDetail() {
               📅 {new Date(item.matchDate).toLocaleDateString('pt-BR')}
             </Text>
 
-            {editingId === item.id ? (
+            {editingId === item.id && (
               <View style={styles.scoreForm}>
                 <TextInput
                   style={styles.scoreInput}
@@ -215,7 +209,7 @@ export default function ChampionshipDetail() {
                   <Text style={styles.saveButtonText}>Salvar</Text>
                 </TouchableOpacity>
               </View>
-            ) : null}
+            )}
 
             <View style={styles.actions}>
               <TouchableOpacity

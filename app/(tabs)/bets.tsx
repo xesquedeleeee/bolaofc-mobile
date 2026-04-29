@@ -42,7 +42,7 @@ export default function Bets() {
   const [predictedHome, setPredictedHome] = useState('');
   const [predictedAway, setPredictedAway] = useState('');
 
-  const { data: bets, isLoading } = useQuery({
+  const { data: bets, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['bets'],
     queryFn: () => api.get('/bets').then((r) => r.data),
   });
@@ -167,7 +167,6 @@ export default function Bets() {
         </View>
       )}
 
-      {/* Modal de seleção de partida */}
       <Modal visible={showMatchPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -208,6 +207,8 @@ export default function Bets() {
         data={bets}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        onRefresh={refetch}
+        refreshing={isRefetching}
         renderItem={({ item }: { item: Bet }) => (
           <View style={styles.card}>
             <View style={styles.cardHeader}>

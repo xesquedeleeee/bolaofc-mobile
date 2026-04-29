@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -28,7 +29,7 @@ export default function Championships() {
   const [season, setSeason] = useState('');
   const [description, setDescription] = useState('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['championships'],
     queryFn: () => api.get('/championships').then((r) => r.data),
   });
@@ -88,18 +89,24 @@ export default function Championships() {
 
       {showForm && (
         <View style={styles.form}>
-          <TextInputField
+          <TextInput
+            style={styles.input}
             placeholder="Nome do campeonato"
+            placeholderTextColor={Colors.textMuted}
             value={name}
             onChangeText={setName}
           />
-          <TextInputField
-            placeholder="Temporada (ex: 2025)"
+          <TextInput
+            style={styles.input}
+            placeholder="Temporada (ex: 2026)"
+            placeholderTextColor={Colors.textMuted}
             value={season}
             onChangeText={setSeason}
           />
-          <TextInputField
+          <TextInput
+            style={styles.input}
             placeholder="Descrição (opcional)"
+            placeholderTextColor={Colors.textMuted}
             value={description}
             onChangeText={setDescription}
           />
@@ -115,13 +122,15 @@ export default function Championships() {
         data={data}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
+        onRefresh={refetch}
+        refreshing={isRefetching}
         renderItem={({ item }: { item: Championship }) => (
           <TouchableOpacity
             style={styles.card}
             onPress={() => router.push(`/championship/${item.id}`)}
           >
             <View style={styles.cardContent}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.cardTitle}>{item.name}</Text>
                 <Text style={styles.cardSubtitle}>Temporada {item.season}</Text>
                 {item.description ? (
@@ -142,29 +151,6 @@ export default function Championships() {
         }
       />
     </View>
-  );
-}
-
-function TextInputField({ placeholder, value, onChangeText }: any) {
-  const { TextInput } = require('react-native');
-  return (
-    <TextInput
-      style={{
-        backgroundColor: Colors.inputBackground,
-        borderWidth: 1,
-        borderColor: Colors.inputBorder,
-        borderRadius: 10,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        fontSize: 14,
-        color: Colors.text,
-        marginBottom: 10,
-      }}
-      placeholder={placeholder}
-      placeholderTextColor={Colors.textMuted}
-      value={value}
-      onChangeText={onChangeText}
-    />
   );
 }
 
@@ -206,6 +192,17 @@ const styles = StyleSheet.create({
   form: {
     paddingHorizontal: 20,
     marginBottom: 16,
+  },
+  input: {
+    backgroundColor: Colors.inputBackground,
+    borderWidth: 1,
+    borderColor: Colors.inputBorder,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 10,
   },
   submitButton: {
     backgroundColor: Colors.primary,

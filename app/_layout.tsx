@@ -2,20 +2,27 @@ import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
+import { View, ActivityIndicator } from 'react-native';
 import useAuthStore from '../src/store/authStore';
+import { Colors } from '../constants/theme';
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
-  const { user } = useAuthStore();
+  const { user, hydrated, hydrate } = useAuthStore();
   const segments = useSegments();
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    hydrate();
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     const timer = setTimeout(() => setReady(true), 100);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hydrated]);
 
   useEffect(() => {
     if (!ready) return;
@@ -26,6 +33,14 @@ function RootLayoutNav() {
       router.replace('/(tabs)');
     }
   }, [user, segments, ready]);
+
+  if (!hydrated) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background }}>
+        <ActivityIndicator color={Colors.primary} size="large" />
+      </View>
+    );
+  }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
