@@ -1,5 +1,15 @@
 # BolãoFC — app mobile
 
+## Desenvolvedores/Alunos
+
+### Brenno Henrique - 855276
+
+### Alexis Gonçalves -
+
+### Levi Victor -
+
+### Luan Bandeira -
+
 Cliente **React Native (Expo)** para bolão de futebol: campeonatos, apostas, ranking e perfil. Os dados vêm da API configurada no projeto.
 
 ## Requisitos
