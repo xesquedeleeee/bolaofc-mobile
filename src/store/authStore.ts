@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
+import { isAccessTokenExpired } from '../utils/jwt';
 
 interface User {
   id: string;
@@ -43,12 +44,19 @@ const useAuthStore = create<AuthState>((set) => ({
       const accessToken = await SecureStore.getItemAsync('accessToken');
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
       if (user && accessToken) {
-        set({
-          user: JSON.parse(user),
-          accessToken,
-          refreshToken,
-          hydrated: true,
-        });
+        if (isAccessTokenExpired(accessToken)) {
+          await SecureStore.deleteItemAsync('user');
+          await SecureStore.deleteItemAsync('accessToken');
+          await SecureStore.deleteItemAsync('refreshToken');
+          set({ hydrated: true });
+        } else {
+          set({
+            user: JSON.parse(user),
+            accessToken,
+            refreshToken,
+            hydrated: true,
+          });
+        }
       } else {
         set({ hydrated: true });
       }
