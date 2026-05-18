@@ -2,9 +2,8 @@ import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
-import { AppState, View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import useAuthStore from '../src/store/authStore';
-import { isAccessTokenExpired } from '../src/utils/jwt';
 import { Colors } from '../constants/theme';
 
 const queryClient = new QueryClient();
@@ -18,17 +17,6 @@ function RootLayoutNav() {
   useEffect(() => {
     hydrate();
   }, []);
-
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => {
-      if (state !== 'active') return;
-      const { user, accessToken, logout } = useAuthStore.getState();
-      if (user && isAccessTokenExpired(accessToken)) {
-        void logout().then(() => router.replace('/(auth)/login'));
-      }
-    });
-    return () => sub.remove();
-  }, [router]);
 
   useEffect(() => {
     if (!hydrated) return;
