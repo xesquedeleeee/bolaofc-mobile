@@ -29,7 +29,8 @@ export default function Login() {
     try {
       setLoading(true);
       const { data } = await api.post('/auth/login', { email, password });
-      setAuth(data.user, data.accessToken, data.refreshToken);
+      const { user, accessToken, refreshToken } = data.data;
+      await setAuth(user, accessToken, refreshToken);
       router.replace('/(tabs)');
     } catch {
       Alert.alert('Erro', 'Email ou senha incorretos.');
