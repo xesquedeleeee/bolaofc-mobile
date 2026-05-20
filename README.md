@@ -8,7 +8,7 @@
 
 ### Levi Victor -
 
-### Luan Bandeira -
+### Luan Bandeira - 855241
 
 Cliente **React Native (Expo)** para bolão de futebol: campeonatos, apostas, ranking e perfil. Os dados vêm da API configurada no projeto.
 
