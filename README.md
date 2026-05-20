@@ -6,7 +6,7 @@
 
 ### Alexis Gonçalves -
 
-### Levi Victor - 855503
+### Levi Vitor - 855503
 
 ### Luan Bandeira - 855241
 
