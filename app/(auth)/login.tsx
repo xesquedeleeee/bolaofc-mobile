@@ -8,6 +8,7 @@ import {
   Alert,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import api from '../../src/services/api';
@@ -45,7 +46,11 @@ export default function Login() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.logo}>🏆</Text>
+    <Image
+      source={require('../../assets/logo.png')}
+      style={styles.logo}
+      resizeMode="contain"
+    />
       <Text style={styles.title}>BolãoFC</Text>
       <Text style={styles.subtitle}>Entre na sua conta para continuar</Text>
 
@@ -103,8 +108,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   logo: {
-    fontSize: 56,
-    textAlign: 'center',
+    width: 160,
+    height: 160,
+    alignSelf: 'center',
     marginBottom: 8,
   },
   title: {
