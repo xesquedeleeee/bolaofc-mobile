@@ -15,6 +15,14 @@ import { useState } from "react";
 import api from "../../src/services/api";
 import { Colors } from "../../constants/theme";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import {
+  Target,
+  Pencil,
+  Trash2,
+  Star,
+  X,
+  ChevronDown,
+} from "lucide-react-native";
 
 interface Bet {
   id: string;
@@ -145,14 +153,21 @@ export default function Bets() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          🎯 Meus Palpites
-        </Text>
+        <View style={styles.titleRow}>
+          <Target color={Colors.primary} size={24} />
+          <Text style={[styles.title, { color: colors.text }]}>
+            Meus Palpites
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowForm(!showForm)}
         >
-          <Text style={styles.addButtonText}>{showForm ? "✕" : "+ Novo"}</Text>
+          {showForm ? (
+            <X color={Colors.white} size={18} />
+          ) : (
+            <Text style={styles.addButtonText}>+ Novo</Text>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -173,11 +188,7 @@ export default function Bets() {
                 ? `${selectedMatch.homeTeam} vs ${selectedMatch.awayTeam}`
                 : "Selecionar partida..."}
             </Text>
-            <Text
-              style={[styles.matchPickerArrow, { color: colors.textMuted }]}
-            >
-              ▼
-            </Text>
+            <ChevronDown color={colors.textMuted} size={16} />
           </TouchableOpacity>
 
           {selectedMatch && (
@@ -185,7 +196,10 @@ export default function Bets() {
               <View style={styles.scoreRow}>
                 <View style={styles.scoreTeam}>
                   <Text
-                    style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                    style={[
+                      styles.scoreTeamName,
+                      { color: colors.textMuted },
+                    ]}
                   >
                     {selectedMatch.homeTeam}
                   </Text>
@@ -211,7 +225,10 @@ export default function Bets() {
                 </Text>
                 <View style={styles.scoreTeam}>
                   <Text
-                    style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                    style={[
+                      styles.scoreTeamName,
+                      { color: colors.textMuted },
+                    ]}
                   >
                     {selectedMatch.awayTeam}
                   </Text>
@@ -289,7 +306,10 @@ export default function Bets() {
               )}
             </ScrollView>
             <TouchableOpacity
-              style={[styles.modalClose, { backgroundColor: colors.cardLight }]}
+              style={[
+                styles.modalClose,
+                { backgroundColor: colors.cardLight },
+              ]}
               onPress={() => setShowMatchPicker(false)}
             >
               <Text style={[styles.modalCloseText, { color: colors.text }]}>
@@ -303,11 +323,16 @@ export default function Bets() {
       <Modal visible={!!editingBet} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={[styles.modalBox, { backgroundColor: colors.card }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              ✏️ Editar Palpite
-            </Text>
+            <View style={styles.modalTitleRow}>
+              <Pencil color={Colors.primary} size={18} />
+              <Text style={[styles.modalTitle, { color: colors.text }]}>
+                Editar Palpite
+              </Text>
+            </View>
             {editingBet?.match && (
-              <Text style={[styles.editMatchName, { color: colors.textMuted }]}>
+              <Text
+                style={[styles.editMatchName, { color: colors.textMuted }]}
+              >
                 {editingBet.match.homeTeam} vs {editingBet.match.awayTeam}
               </Text>
             )}
@@ -371,7 +396,10 @@ export default function Bets() {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.modalClose, { backgroundColor: colors.cardLight }]}
+              style={[
+                styles.modalClose,
+                { backgroundColor: colors.cardLight },
+              ]}
               onPress={() => setEditingBet(null)}
             >
               <Text style={[styles.modalCloseText, { color: colors.text }]}>
@@ -401,7 +429,10 @@ export default function Bets() {
                   ? `${item.match.homeTeam} vs ${item.match.awayTeam}`
                   : "Partida"}
               </Text>
-              <Text style={styles.points}>⭐ {item.points} pts</Text>
+              <View style={styles.pointsBadge}>
+                <Star color={Colors.warning} size={14} fill={Colors.warning} />
+                <Text style={styles.points}>{item.points} pts</Text>
+              </View>
             </View>
             <Text style={[styles.betScore, { color: colors.textMuted }]}>
               Palpite: {item.predictedHome} x {item.predictedAway}
@@ -411,7 +442,8 @@ export default function Bets() {
                 style={styles.editButton}
                 onPress={() => handleEdit(item)}
               >
-                <Text style={styles.editButtonText}>✏️ Editar</Text>
+                <Pencil color={Colors.white} size={14} />
+                <Text style={styles.editButtonText}>Editar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -420,10 +452,14 @@ export default function Bets() {
                 ]}
                 onPress={() => handleDelete(item.id)}
               >
+                <Trash2 color={colors.textMuted} size={14} />
                 <Text
-                  style={[styles.deleteButtonText, { color: colors.textMuted }]}
+                  style={[
+                    styles.deleteButtonText,
+                    { color: colors.textMuted },
+                  ]}
                 >
-                  🗑️ Deletar
+                  Deletar
                 </Text>
               </TouchableOpacity>
             </View>
@@ -440,8 +476,15 @@ export default function Bets() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60 },
-  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    paddingTop: 60,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -449,15 +492,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  title: { fontSize: 24, fontWeight: "bold" },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   addButton: {
     backgroundColor: Colors.secondary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    minWidth: 80,
   },
-  addButtonText: { color: Colors.white, fontWeight: "600", fontSize: 14 },
-  form: { paddingHorizontal: 20, marginBottom: 16 },
+  addButtonText: {
+    color: Colors.white,
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  form: {
+    paddingHorizontal: 20,
+    marginBottom: 16,
+  },
   matchPicker: {
     borderWidth: 1,
     borderRadius: 10,
@@ -468,8 +529,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  matchPickerText: { fontSize: 14 },
-  matchPickerArrow: { fontSize: 12 },
+  matchPickerText: {
+    fontSize: 14,
+    flex: 1,
+  },
   scoreRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -477,8 +540,15 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 12,
   },
-  scoreTeam: { flex: 1, alignItems: "center", gap: 8 },
-  scoreTeamName: { fontSize: 13, textAlign: "center" },
+  scoreTeam: {
+    flex: 1,
+    alignItems: "center",
+    gap: 8,
+  },
+  scoreTeamName: {
+    fontSize: 13,
+    textAlign: "center",
+  },
   scoreInput: {
     borderWidth: 1,
     borderRadius: 10,
@@ -486,7 +556,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     width: "100%",
   },
-  scoreSeparator: { fontSize: 24, fontWeight: "bold", marginTop: 20 },
+  scoreSeparator: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 20,
+  },
   submitButton: {
     backgroundColor: Colors.secondary,
     borderRadius: 10,
@@ -494,7 +568,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
-  submitButtonText: { color: Colors.white, fontWeight: "600", fontSize: 15 },
+  submitButtonText: {
+    color: Colors.white,
+    fontWeight: "600",
+    fontSize: 15,
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
@@ -506,44 +584,110 @@ const styles = StyleSheet.create({
     padding: 20,
     maxHeight: "70%",
   },
-  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
-  editMatchName: { fontSize: 14, marginBottom: 16 },
-  matchOption: { paddingVertical: 14, borderBottomWidth: 1 },
-  matchOptionText: { fontSize: 15, fontWeight: "600" },
-  matchOptionDate: { fontSize: 12, marginTop: 2 },
+  modalTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  editMatchName: {
+    fontSize: 14,
+    marginBottom: 16,
+  },
+  matchOption: {
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+  },
+  matchOptionText: {
+    fontSize: 15,
+    fontWeight: "600",
+  },
+  matchOptionDate: {
+    fontSize: 12,
+    marginTop: 2,
+  },
   modalClose: {
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 8,
   },
-  modalCloseText: { fontWeight: "600" },
-  list: { paddingHorizontal: 20, paddingBottom: 40 },
-  card: { borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1 },
+  modalCloseText: {
+    fontWeight: "600",
+  },
+  list: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  card: {
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
   cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 6,
   },
-  matchInfo: { fontSize: 15, fontWeight: "bold", flex: 1 },
-  betScore: { fontSize: 14, marginBottom: 12 },
-  points: { fontSize: 14, fontWeight: "bold", color: Colors.warning },
-  actions: { flexDirection: "row", gap: 10 },
+  matchInfo: {
+    fontSize: 15,
+    fontWeight: "bold",
+    flex: 1,
+  },
+  pointsBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  points: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: Colors.warning,
+  },
+  betScore: {
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 10,
+  },
   editButton: {
     flex: 1,
     backgroundColor: Colors.primary,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
   },
-  editButtonText: { color: Colors.white, fontSize: 13, fontWeight: "600" },
+  editButtonText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: "600",
+  },
   deleteButton: {
     flex: 1,
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
   },
-  deleteButtonText: { fontSize: 13 },
-  empty: { textAlign: "center", marginTop: 40, fontSize: 14 },
+  deleteButtonText: {
+    fontSize: 13,
+  },
+  empty: {
+    textAlign: "center",
+    marginTop: 40,
+    fontSize: 14,
+  },
 });

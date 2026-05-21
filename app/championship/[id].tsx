@@ -14,6 +14,7 @@ import { useState } from "react";
 import api from "../../src/services/api";
 import { Colors } from "../../constants/theme";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { ArrowLeft, Plus, X, Swords, Trash2, Calendar } from "lucide-react-native";
 
 interface Match {
   id: string;
@@ -129,14 +130,15 @@ export default function ChampionshipDetail() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.backText}>← Voltar</Text>
+          <ArrowLeft color={Colors.primary} size={20} />
+          <Text style={styles.backText}>Voltar</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowForm(!showForm)}
         >
           <Text style={styles.addButtonText}>
-            {showForm ? "✕" : "+ Partida"}
+            {showForm ? <X color={Colors.white} size={18} /> : <><Plus color={Colors.white} size={16} /><Text style={styles.addButtonText}>Partida</Text></>}
           </Text>
         </TouchableOpacity>
       </View>
@@ -227,9 +229,12 @@ export default function ChampionshipDetail() {
               </Text>
             </View>
 
-            <Text style={[styles.date, { color: colors.textMuted }]}>
-              📅 {new Date(item.matchDate).toLocaleDateString("pt-BR")}
-            </Text>
+            <View style={styles.dateRow}>
+              <Calendar color={colors.textMuted} size={13} />
+              <Text style={[styles.date, { color: colors.textMuted }]}>
+              {new Date(item.matchDate).toLocaleDateString("pt-BR")}
+              </Text>
+            </View>
 
             {editingId === item.id && (
               <View style={styles.scoreForm}>
@@ -287,9 +292,8 @@ export default function ChampionshipDetail() {
                   setAwayScore("");
                 }}
               >
-                <Text style={[styles.actionText, { color: colors.textMuted }]}>
-                  ⚽ Placar
-                </Text>
+                <Swords color={colors.textMuted} size={14} />
+                <Text>Placar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
@@ -298,9 +302,8 @@ export default function ChampionshipDetail() {
                 ]}
                 onPress={() => handleDelete(item.id)}
               >
-                <Text style={[styles.actionText, { color: colors.textMuted }]}>
-                  🗑️ Deletar
-                </Text>
+                <Trash2 color={colors.textMuted} size={14} />
+                <Text>Deletar</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -462,4 +465,11 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontSize: 14,
   },
+  dateRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 5,
+  marginBottom: 10,
+},
 });

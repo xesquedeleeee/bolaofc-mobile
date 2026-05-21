@@ -14,6 +14,7 @@ import { useState } from "react";
 import api from "../../src/services/api";
 import { Colors } from "../../constants/theme";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { Trophy, Trash2, X } from "lucide-react-native";
 
 interface Championship {
   id: string;
@@ -85,14 +86,15 @@ export default function Championships() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>
-          🏆 Campeonatos
-        </Text>
+        <View style={styles.titleRow}>
+        <Trophy color={Colors.primary} size={24} />
+        <Text style={[styles.title, { color: colors.text }]}>Campeonatos</Text>
+      </View>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowForm(!showForm)}
         >
-          <Text style={styles.addButtonText}>{showForm ? "✕" : "+ Novo"}</Text>
+        {showForm ? <X color={Colors.white} size={18} /> : <Text style={styles.addButtonText}>+ Novo</Text>}
         </TouchableOpacity>
       </View>
 
@@ -187,7 +189,7 @@ export default function Championships() {
                 onPress={() => handleDelete(item.id)}
                 style={styles.deleteButton}
               >
-                <Text style={styles.deleteText}>🗑️</Text>
+                <Trash2 color={colors.textMuted} size={20} />
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
@@ -295,4 +297,9 @@ const styles = StyleSheet.create({
     marginTop: 40,
     fontSize: 14,
   },
+  titleRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10,
+},
 });

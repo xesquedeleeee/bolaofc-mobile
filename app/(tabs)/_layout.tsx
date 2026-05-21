@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { Text } from "react-native";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { Home, Trophy, Target, Medal } from "lucide-react-native";
 
 function TabIcon({ emoji }: { emoji: string }) {
   return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
@@ -25,28 +26,28 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: () => <TabIcon emoji="🏠" />,
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />
         }}
       />
       <Tabs.Screen
         name="championships"
         options={{
           title: "Campeonatos",
-          tabBarIcon: () => <TabIcon emoji="🏆" />,
+          tabBarIcon: ({ color, size }) => <Trophy color={color} size={size} />
         }}
       />
       <Tabs.Screen
         name="bets"
         options={{
           title: "Palpites",
-          tabBarIcon: () => <TabIcon emoji="🎯" />,
+          tabBarIcon: ({ color, size }) => <Target color={color} size={size} />
         }}
       />
       <Tabs.Screen
         name="ranking"
         options={{
           title: "Ranking",
-          tabBarIcon: () => <TabIcon emoji="🏅" />,
+          tabBarIcon: ({ color, size }) => <Medal color={color} size={size} />
         }}
       />
     </Tabs>

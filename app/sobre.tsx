@@ -4,10 +4,18 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "../constants/theme";
 import { useThemeColors } from "../src/hooks/useThemeColors";
+import {
+  Star,
+  X,
+  User,
+  ChevronRight,
+  ArrowLeft,
+} from "lucide-react-native";
 
 export default function Sobre() {
   const router = useRouter();
@@ -18,15 +26,25 @@ export default function Sobre() {
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.content}
     >
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Text style={styles.backText}>← Voltar</Text>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <ArrowLeft color={Colors.primary} size={20} />
+        <Text style={styles.backText}>Voltar</Text>
       </TouchableOpacity>
 
-      <Text style={styles.emoji}>🏆</Text>
-      <Text style={[styles.title, { color: colors.text }]}>BolãoFC</Text>
-      <Text style={[styles.version, { color: colors.textMuted }]}>
-        Versão 1.0.0
-      </Text>
+      <View style={styles.hero}>
+        <Image
+          source={require("../assets/logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={[styles.title, { color: colors.text }]}>BolãoFC</Text>
+        <Text style={[styles.version, { color: colors.textMuted }]}>
+          Versão 1.0.0
+        </Text>
+      </View>
 
       <View
         style={[
@@ -54,19 +72,25 @@ export default function Sobre() {
           Como funciona a pontuação?
         </Text>
         <View style={styles.pointRow}>
-          <Text style={styles.pointEmoji}>⭐⭐⭐</Text>
+          <View style={styles.starsRow}>
+            <Star color={Colors.warning} size={16} fill={Colors.warning} />
+            <Star color={Colors.warning} size={16} fill={Colors.warning} />
+            <Star color={Colors.warning} size={16} fill={Colors.warning} />
+          </View>
           <Text style={[styles.pointText, { color: colors.textMuted }]}>
             Placar exato acertado = 3 pontos
           </Text>
         </View>
         <View style={styles.pointRow}>
-          <Text style={styles.pointEmoji}>⭐</Text>
+          <View style={styles.starsRow}>
+            <Star color={Colors.warning} size={16} fill={Colors.warning} />
+          </View>
           <Text style={[styles.pointText, { color: colors.textMuted }]}>
             Acertou o vencedor = 1 ponto
           </Text>
         </View>
         <View style={styles.pointRow}>
-          <Text style={styles.pointEmoji}>❌</Text>
+          <X color={Colors.danger} size={20} />
           <Text style={[styles.pointText, { color: colors.textMuted }]}>
             Errou o vencedor = 0 pontos
           </Text>
@@ -97,39 +121,37 @@ export default function Sobre() {
         ]}
       >
         <Text style={[styles.cardTitle, { color: colors.text }]}>Equipe</Text>
-        <TouchableOpacity
-          style={[styles.memberRow, { borderBottomColor: colors.border }]}
-          onPress={() => router.push("/perfil-luan")}
-        >
-          <Text style={[styles.memberName, { color: colors.text }]}>
-            👤 Luan
-          </Text>
-          <Text style={[styles.memberRole, { color: colors.textMuted }]}>
-            Auth + User
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.memberRow, { borderBottomColor: colors.border }]}
-          onPress={() => router.push("/perfil-alexis")}
-        >
-          <Text style={[styles.memberName, { color: colors.text }]}>
-            👤 Alexis
-          </Text>
-          <Text style={[styles.memberRole, { color: colors.textMuted }]}>
-            Championship + Match
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.memberRow, { borderBottomColor: colors.border }]}
-          onPress={() => router.push("/perfil-levi")}
-        >
-          <Text style={[styles.memberName, { color: colors.text }]}>
-            👤 Levi
-          </Text>
-          <Text style={[styles.memberRole, { color: colors.textMuted }]}>
-            Bet + Ranking
-          </Text>
-        </TouchableOpacity>
+        {[
+          { name: "Luan", role: "Auth + User", route: "/perfil-luan" },
+          { name: "Alexis", role: "Championship + Match", route: "/perfil-alexis" },
+          { name: "Levi", role: "Bet + Ranking", route: "/perfil-levi" },
+        ].map((member) => (
+          <TouchableOpacity
+            key={member.name}
+            style={[styles.memberRow, { borderBottomColor: colors.border }]}
+            onPress={() => router.push(member.route as any)}
+          >
+            <View style={styles.memberLeft}>
+              <View
+                style={[
+                  styles.avatarSmall,
+                  { backgroundColor: colors.cardLight },
+                ]}
+              >
+                <User color={colors.textMuted} size={16} />
+              </View>
+              <View>
+                <Text style={[styles.memberName, { color: colors.text }]}>
+                  {member.name}
+                </Text>
+                <Text style={[styles.memberRole, { color: colors.textMuted }]}>
+                  {member.role}
+                </Text>
+              </View>
+            </View>
+            <ChevronRight color={colors.textMuted} size={16} />
+          </TouchableOpacity>
+        ))}
       </View>
     </ScrollView>
   );
@@ -145,27 +167,31 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     marginBottom: 24,
   },
   backText: {
     color: Colors.primary,
     fontSize: 16,
   },
-  emoji: {
-    fontSize: 56,
-    textAlign: "center",
-    marginBottom: 8,
+  hero: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  logo: {
+    width: 110,
+    height: 110,
+    marginBottom: 12,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
-    textAlign: "center",
     marginBottom: 4,
   },
   version: {
     fontSize: 13,
-    textAlign: "center",
-    marginBottom: 28,
   },
   card: {
     borderRadius: 12,
@@ -186,28 +212,43 @@ const styles = StyleSheet.create({
   pointRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    marginBottom: 8,
+    gap: 12,
+    marginBottom: 10,
   },
-  pointEmoji: {
-    fontSize: 16,
+  starsRow: {
+    flexDirection: "row",
+    gap: 2,
     width: 60,
   },
   pointText: {
     fontSize: 14,
+    flex: 1,
   },
   memberRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
+  },
+  memberLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  avatarSmall: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
   },
   memberName: {
     fontSize: 15,
     fontWeight: "600",
   },
   memberRole: {
-    fontSize: 13,
+    fontSize: 12,
+    marginTop: 2,
   },
 });

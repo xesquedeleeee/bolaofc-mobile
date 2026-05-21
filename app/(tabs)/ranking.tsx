@@ -1,24 +1,22 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import api from "../../src/services/api";
 import { Colors } from "../../constants/theme";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { Medal, Trophy, Award } from "lucide-react-native";
 
 interface RankingItem {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user: { id: string; name: string; email: string };
   totalPoints: number;
   totalBets: number;
 }
+
+const MedalIcon = ({ index }: { index: number }) => {
+  if (index === 0) return <Trophy color="#FFD700" size={28} fill="#FFD700" />;
+  if (index === 1) return <Medal color="#C0C0C0" size={28} fill="#C0C0C0" />;
+  if (index === 2) return <Award color="#CD7F32" size={28} fill="#CD7F32" />;
+  return <Text style={styles.position}>{index + 1}.</Text>;
+};
 
 export default function Ranking() {
   const colors = useThemeColors();
@@ -26,7 +24,6 @@ export default function Ranking() {
     queryKey: ["ranking"],
     queryFn: () => api.get("/bets/ranking").then((r) => r.data),
   });
-  const medals = ["🥇", "🥈", "🥉"];
 
   if (isLoading) {
     return (
@@ -38,9 +35,10 @@ export default function Ranking() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>
-        🏅 Ranking Geral
-      </Text>
+      <View style={styles.titleRow}>
+        <Medal color={Colors.primary} size={24} />
+        <Text style={[styles.title, { color: colors.text }]}>Ranking Geral</Text>
+      </View>
 
       <FlatList
         data={data}
@@ -54,30 +52,20 @@ export default function Ranking() {
               index === 0 && styles.cardFirst,
             ]}
           >
-            <Text style={styles.medal}>{medals[index] || `${index + 1}.`}</Text>
-            <View style={styles.info}>
-              <Text style={[styles.name, { color: colors.text }]}>
-                {item.user.name}
-              </Text>
-              <Text style={[styles.bets, { color: colors.textMuted }]}>
-                {item.totalBets} palpites
-              </Text>
+            <View style={styles.medalContainer}>
+              <MedalIcon index={index} />
             </View>
-            <Text
-              style={[
-                styles.points,
-                { color: colors.textMuted },
-                index === 0 && styles.pointsFirst,
-              ]}
-            >
+            <View style={styles.info}>
+              <Text style={[styles.name, { color: colors.text }]}>{item.user.name}</Text>
+              <Text style={[styles.bets, { color: colors.textMuted }]}>{item.totalBets} palpites</Text>
+            </View>
+            <Text style={[styles.points, { color: colors.textMuted }, index === 0 && styles.pointsFirst]}>
               {item.totalPoints} pts
             </Text>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={[styles.empty, { color: colors.textMuted }]}>
-            Nenhum palpite registrado ainda.
-          </Text>
+          <Text style={[styles.empty, { color: colors.textMuted }]}>Nenhum palpite registrado ainda.</Text>
         }
       />
     </View>
@@ -87,24 +75,13 @@ export default function Ranking() {
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 60 },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 20, marginBottom: 20 },
+  title: { fontSize: 24, fontWeight: "bold" },
   list: { paddingHorizontal: 20, paddingBottom: 40 },
-  card: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
+  card: { borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 12 },
   cardFirst: { borderColor: Colors.warning, backgroundColor: "#1c1a0f" },
-  medal: { fontSize: 28, width: 40 },
+  medalContainer: { width: 36, alignItems: "center" },
+  position: { fontSize: 18, fontWeight: "bold", color: Colors.primary },
   info: { flex: 1 },
   name: { fontSize: 16, fontWeight: "bold", marginBottom: 2 },
   bets: { fontSize: 12 },

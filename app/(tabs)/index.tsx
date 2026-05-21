@@ -4,12 +4,14 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors } from "../../constants/theme";
 import useAuthStore from "../../src/store/authStore";
 import useThemeStore from "../../src/store/themeStore";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
+import { Trophy, Target, Medal, Info, Sun, Moon, LogOut } from "lucide-react-native";
 
 export default function Home() {
   const { user, logout } = useAuthStore();
@@ -44,7 +46,7 @@ export default function Home() {
             ]}
             onPress={toggleTheme}
           >
-            <Text style={{ fontSize: 16 }}>{isDark ? "☀️" : "🌙"}</Text>
+          {isDark ? <Sun color={colors.textMuted} size={18} /> : <Moon color={colors.textMuted} size={18} />}
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -53,20 +55,21 @@ export default function Home() {
             ]}
             onPress={handleLogout}
           >
-            <Text style={[styles.logoutText, { color: colors.textMuted }]}>
-              Sair
-            </Text>
+          <LogOut color={colors.textMuted} size={18} />
           </TouchableOpacity>
         </View>
       </View>
 
       <View style={styles.banner}>
-        <Text style={styles.bannerEmoji}>🏆</Text>
-        <Text style={styles.bannerTitle}>BolãoFC</Text>
-        <Text style={styles.bannerSubtitle}>
-          Faça seus palpites e dispute com seus amigos!
-        </Text>
-      </View>
+        <Image
+          source={require("../../assets/logo.png")}
+          style={styles.bannerLogo}
+          resizeMode="contain"
+        />
+    <Text style={[styles.bannerSubtitle, { color: colors.textMuted }]}>
+      FAÇA SEUS PALPITES E DISPUTE COM AMIGOS!
+    </Text>
+</View>
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
         Acesso Rápido
@@ -80,7 +83,7 @@ export default function Home() {
           ]}
           onPress={() => router.push("/(tabs)/championships")}
         >
-          <Text style={styles.cardEmoji}>🏆</Text>
+          <Trophy color={Colors.primary} size={28} style={styles.cardIcon} />
           <Text style={[styles.cardTitle, { color: colors.text }]}>
             Campeonatos
           </Text>
@@ -96,7 +99,7 @@ export default function Home() {
           ]}
           onPress={() => router.push("/(tabs)/bets")}
         >
-          <Text style={styles.cardEmoji}>🎯</Text>
+          <Target color={Colors.primary} size={28} style={styles.cardIcon} />
           <Text style={[styles.cardTitle, { color: colors.text }]}>
             Palpites
           </Text>
@@ -112,7 +115,7 @@ export default function Home() {
           ]}
           onPress={() => router.push("/(tabs)/ranking")}
         >
-          <Text style={styles.cardEmoji}>🏅</Text>
+          <Medal color={Colors.primary} size={28} style={styles.cardIcon} />
           <Text style={[styles.cardTitle, { color: colors.text }]}>
             Ranking
           </Text>
@@ -128,7 +131,7 @@ export default function Home() {
           ]}
           onPress={() => router.push("/sobre")}
         >
-          <Text style={styles.cardEmoji}>ℹ️</Text>
+          <Info color={Colors.primary} size={28} style={styles.cardIcon} />
           <Text style={[styles.cardTitle, { color: colors.text }]}>Sobre</Text>
           <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
             Sobre o app
@@ -172,15 +175,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   banner: {
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
-    marginBottom: 28,
-  },
-  bannerEmoji: {
-    fontSize: 48,
-    marginBottom: 8,
+  alignItems: "center",
+  paddingVertical: 24,
+  marginBottom: 20,
   },
   bannerTitle: {
     fontSize: 24,
@@ -209,10 +206,6 @@ const styles = StyleSheet.create({
     width: "47%",
     borderWidth: 1,
   },
-  cardEmoji: {
-    fontSize: 28,
-    marginBottom: 8,
-  },
   cardTitle: {
     fontSize: 15,
     fontWeight: "bold",
@@ -220,5 +213,13 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     fontSize: 12,
+  },
+  bannerLogo: { 
+    width: 150,
+    height: 150, 
+    marginBottom: 10 
+  },
+ cardIcon: {
+   marginBottom: 10 
   },
 });
