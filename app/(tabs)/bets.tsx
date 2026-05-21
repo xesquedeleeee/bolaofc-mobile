@@ -9,11 +9,12 @@ import {
   TextInput,
   Modal,
   ScrollView,
-} from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import api from '../../src/services/api';
-import { Colors } from '../../constants/theme';
+} from "react-native";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import api from "../../src/services/api";
+import { Colors } from "../../constants/theme";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 interface Bet {
   id: string;
@@ -36,57 +37,63 @@ interface Match {
 
 export default function Bets() {
   const qc = useQueryClient();
+  const colors = useThemeColors();
   const [showForm, setShowForm] = useState(false);
   const [showMatchPicker, setShowMatchPicker] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
-  const [predictedHome, setPredictedHome] = useState('');
-  const [predictedAway, setPredictedAway] = useState('');
+  const [predictedHome, setPredictedHome] = useState("");
+  const [predictedAway, setPredictedAway] = useState("");
   const [editingBet, setEditingBet] = useState<Bet | null>(null);
-  const [editHome, setEditHome] = useState('');
-  const [editAway, setEditAway] = useState('');
+  const [editHome, setEditHome] = useState("");
+  const [editAway, setEditAway] = useState("");
 
-  const { data: bets, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['bets'],
-    queryFn: () => api.get('/bets').then((r) => r.data),
+  const {
+    data: bets,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["bets"],
+    queryFn: () => api.get("/bets").then((r) => r.data),
   });
 
   const { data: matches } = useQuery({
-    queryKey: ['all-matches'],
-    queryFn: () => api.get('/matches').then((r) => r.data),
+    queryKey: ["all-matches"],
+    queryFn: () => api.get("/matches").then((r) => r.data),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => api.post('/bets', data),
+    mutationFn: (data: any) => api.post("/bets", data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['bets'] });
+      qc.invalidateQueries({ queryKey: ["bets"] });
       setShowForm(false);
       setSelectedMatch(null);
-      setPredictedHome('');
-      setPredictedAway('');
+      setPredictedHome("");
+      setPredictedAway("");
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível registrar o palpite.'),
+    onError: () => Alert.alert("Erro", "Não foi possível registrar o palpite."),
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: any) => api.put(`/bets/${id}`, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['bets'] });
+      qc.invalidateQueries({ queryKey: ["bets"] });
       setEditingBet(null);
-      setEditHome('');
-      setEditAway('');
+      setEditHome("");
+      setEditAway("");
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível atualizar o palpite.'),
+    onError: () => Alert.alert("Erro", "Não foi possível atualizar o palpite."),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/bets/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['bets'] }),
-    onError: () => Alert.alert('Erro', 'Não foi possível deletar o palpite.'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["bets"] }),
+    onError: () => Alert.alert("Erro", "Não foi possível deletar o palpite."),
   });
 
   function handleCreate() {
-    if (!selectedMatch || predictedHome === '' || predictedAway === '') {
-      Alert.alert('Atenção', 'Selecione uma partida e preencha os palpites.');
+    if (!selectedMatch || predictedHome === "" || predictedAway === "") {
+      Alert.alert("Atenção", "Selecione uma partida e preencha os palpites.");
       return;
     }
     createMutation.mutate({
@@ -103,8 +110,8 @@ export default function Bets() {
   }
 
   function handleUpdate() {
-    if (!editingBet || editHome === '' || editAway === '') {
-      Alert.alert('Atenção', 'Preencha os dois palpites.');
+    if (!editingBet || editHome === "" || editAway === "") {
+      Alert.alert("Atenção", "Preencha os dois palpites.");
       return;
     }
     updateMutation.mutate({
@@ -117,11 +124,11 @@ export default function Bets() {
   }
 
   function handleDelete(id: string) {
-    Alert.alert('Confirmar', 'Deseja deletar este palpite?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert("Confirmar", "Deseja deletar este palpite?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: 'Deletar',
-        style: 'destructive',
+        text: "Deletar",
+        style: "destructive",
         onPress: () => deleteMutation.mutate(id),
       },
     ]);
@@ -129,60 +136,96 @@ export default function Bets() {
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <ActivityIndicator color={Colors.secondary} size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>🎯 Meus Palpites</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          🎯 Meus Palpites
+        </Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => setShowForm(!showForm)}
         >
-          <Text style={styles.addButtonText}>{showForm ? '✕' : '+ Novo'}</Text>
+          <Text style={styles.addButtonText}>{showForm ? "✕" : "+ Novo"}</Text>
         </TouchableOpacity>
       </View>
 
       {showForm && (
         <View style={styles.form}>
           <TouchableOpacity
-            style={styles.matchPicker}
+            style={[
+              styles.matchPicker,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+              },
+            ]}
             onPress={() => setShowMatchPicker(true)}
           >
-            <Text style={styles.matchPickerText}>
+            <Text style={[styles.matchPickerText, { color: colors.text }]}>
               {selectedMatch
                 ? `${selectedMatch.homeTeam} vs ${selectedMatch.awayTeam}`
-                : 'Selecionar partida...'}
+                : "Selecionar partida..."}
             </Text>
-            <Text style={styles.matchPickerArrow}>▼</Text>
+            <Text
+              style={[styles.matchPickerArrow, { color: colors.textMuted }]}
+            >
+              ▼
+            </Text>
           </TouchableOpacity>
 
           {selectedMatch && (
             <>
               <View style={styles.scoreRow}>
                 <View style={styles.scoreTeam}>
-                  <Text style={styles.scoreTeamName}>{selectedMatch.homeTeam}</Text>
+                  <Text
+                    style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                  >
+                    {selectedMatch.homeTeam}
+                  </Text>
                   <TextInput
-                    style={styles.scoreInput}
+                    style={[
+                      styles.scoreInput,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      },
+                    ]}
                     placeholder="0"
-                    placeholderTextColor={Colors.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={predictedHome}
                     onChangeText={setPredictedHome}
                     keyboardType="numeric"
                     textAlign="center"
                   />
                 </View>
-                <Text style={styles.scoreSeparator}>x</Text>
+                <Text style={[styles.scoreSeparator, { color: colors.text }]}>
+                  x
+                </Text>
                 <View style={styles.scoreTeam}>
-                  <Text style={styles.scoreTeamName}>{selectedMatch.awayTeam}</Text>
+                  <Text
+                    style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                  >
+                    {selectedMatch.awayTeam}
+                  </Text>
                   <TextInput
-                    style={styles.scoreInput}
+                    style={[
+                      styles.scoreInput,
+                      {
+                        backgroundColor: colors.inputBackground,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      },
+                    ]}
                     placeholder="0"
-                    placeholderTextColor={Colors.textMuted}
+                    placeholderTextColor={colors.textMuted}
                     value={predictedAway}
                     onChangeText={setPredictedAway}
                     keyboardType="numeric"
@@ -190,9 +233,14 @@ export default function Bets() {
                   />
                 </View>
               </View>
-              <TouchableOpacity style={styles.submitButton} onPress={handleCreate}>
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleCreate}
+              >
                 <Text style={styles.submitButtonText}>
-                  {createMutation.isPending ? 'Registrando...' : 'Registrar Palpite'}
+                  {createMutation.isPending
+                    ? "Registrando..."
+                    : "Registrar Palpite"}
                 </Text>
               </TouchableOpacity>
             </>
@@ -200,73 +248,113 @@ export default function Bets() {
         </View>
       )}
 
-      {/* Modal seleção de partida */}
       <Modal visible={showMatchPicker} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Selecionar Partida</Text>
+          <View style={[styles.modalBox, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Selecionar Partida
+            </Text>
             <ScrollView>
               {matches?.map((match: Match) => (
                 <TouchableOpacity
                   key={match.id}
-                  style={styles.matchOption}
+                  style={[
+                    styles.matchOption,
+                    { borderBottomColor: colors.border },
+                  ]}
                   onPress={() => {
                     setSelectedMatch(match);
                     setShowMatchPicker(false);
                   }}
                 >
-                  <Text style={styles.matchOptionText}>
+                  <Text
+                    style={[styles.matchOptionText, { color: colors.text }]}
+                  >
                     {match.homeTeam} vs {match.awayTeam}
                   </Text>
-                  <Text style={styles.matchOptionDate}>
-                    {new Date(match.matchDate).toLocaleDateString('pt-BR')}
+                  <Text
+                    style={[
+                      styles.matchOptionDate,
+                      { color: colors.textMuted },
+                    ]}
+                  >
+                    {new Date(match.matchDate).toLocaleDateString("pt-BR")}
                   </Text>
                 </TouchableOpacity>
               ))}
               {(!matches || matches.length === 0) && (
-                <Text style={styles.empty}>Nenhuma partida disponível.</Text>
+                <Text style={[styles.empty, { color: colors.textMuted }]}>
+                  Nenhuma partida disponível.
+                </Text>
               )}
             </ScrollView>
             <TouchableOpacity
-              style={styles.modalClose}
+              style={[styles.modalClose, { backgroundColor: colors.cardLight }]}
               onPress={() => setShowMatchPicker(false)}
             >
-              <Text style={styles.modalCloseText}>Fechar</Text>
+              <Text style={[styles.modalCloseText, { color: colors.text }]}>
+                Fechar
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Modal edição de palpite */}
       <Modal visible={!!editingBet} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>✏️ Editar Palpite</Text>
+          <View style={[styles.modalBox, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              ✏️ Editar Palpite
+            </Text>
             {editingBet?.match && (
-              <Text style={styles.editMatchName}>
+              <Text style={[styles.editMatchName, { color: colors.textMuted }]}>
                 {editingBet.match.homeTeam} vs {editingBet.match.awayTeam}
               </Text>
             )}
             <View style={styles.scoreRow}>
               <View style={styles.scoreTeam}>
-                <Text style={styles.scoreTeamName}>Casa</Text>
+                <Text
+                  style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                >
+                  Casa
+                </Text>
                 <TextInput
-                  style={styles.scoreInput}
+                  style={[
+                    styles.scoreInput,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    },
+                  ]}
                   placeholder="0"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={colors.textMuted}
                   value={editHome}
                   onChangeText={setEditHome}
                   keyboardType="numeric"
                   textAlign="center"
                 />
               </View>
-              <Text style={styles.scoreSeparator}>x</Text>
+              <Text style={[styles.scoreSeparator, { color: colors.text }]}>
+                x
+              </Text>
               <View style={styles.scoreTeam}>
-                <Text style={styles.scoreTeamName}>Fora</Text>
+                <Text
+                  style={[styles.scoreTeamName, { color: colors.textMuted }]}
+                >
+                  Fora
+                </Text>
                 <TextInput
-                  style={styles.scoreInput}
+                  style={[
+                    styles.scoreInput,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    },
+                  ]}
                   placeholder="0"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={colors.textMuted}
                   value={editAway}
                   onChangeText={setEditAway}
                   keyboardType="numeric"
@@ -274,16 +362,21 @@ export default function Bets() {
                 />
               </View>
             </View>
-            <TouchableOpacity style={styles.submitButton} onPress={handleUpdate}>
+            <TouchableOpacity
+              style={styles.submitButton}
+              onPress={handleUpdate}
+            >
               <Text style={styles.submitButtonText}>
-                {updateMutation.isPending ? 'Salvando...' : 'Salvar Palpite'}
+                {updateMutation.isPending ? "Salvando..." : "Salvar Palpite"}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.modalClose}
+              style={[styles.modalClose, { backgroundColor: colors.cardLight }]}
               onPress={() => setEditingBet(null)}
             >
-              <Text style={styles.modalCloseText}>Cancelar</Text>
+              <Text style={[styles.modalCloseText, { color: colors.text }]}>
+                Cancelar
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -296,16 +389,21 @@ export default function Bets() {
         onRefresh={refetch}
         refreshing={isRefetching}
         renderItem={({ item }: { item: Bet }) => (
-          <View style={styles.card}>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
             <View style={styles.cardHeader}>
-              <Text style={styles.matchInfo}>
+              <Text style={[styles.matchInfo, { color: colors.text }]}>
                 {item.match
                   ? `${item.match.homeTeam} vs ${item.match.awayTeam}`
-                  : 'Partida'}
+                  : "Partida"}
               </Text>
               <Text style={styles.points}>⭐ {item.points} pts</Text>
             </View>
-            <Text style={styles.betScore}>
+            <Text style={[styles.betScore, { color: colors.textMuted }]}>
               Palpite: {item.predictedHome} x {item.predictedAway}
             </Text>
             <View style={styles.actions}>
@@ -316,16 +414,25 @@ export default function Bets() {
                 <Text style={styles.editButtonText}>✏️ Editar</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.deleteButton}
+                style={[
+                  styles.deleteButton,
+                  { backgroundColor: colors.cardLight },
+                ]}
                 onPress={() => handleDelete(item.id)}
               >
-                <Text style={styles.deleteButtonText}>🗑️ Deletar</Text>
+                <Text
+                  style={[styles.deleteButtonText, { color: colors.textMuted }]}
+                >
+                  🗑️ Deletar
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>Nenhum palpite registrado ainda.</Text>
+          <Text style={[styles.empty, { color: colors.textMuted }]}>
+            Nenhum palpite registrado ainda.
+          </Text>
         }
       />
     </View>
@@ -333,223 +440,110 @@ export default function Bets() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-    paddingTop: 60,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
-  },
+  container: { flex: 1, paddingTop: 60 },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     marginBottom: 16,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.text,
-  },
+  title: { fontSize: 24, fontWeight: "bold" },
   addButton: {
     backgroundColor: Colors.secondary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  addButtonText: {
-    color: Colors.white,
-    fontWeight: '600',
-    fontSize: 14,
-  },
-  form: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
+  addButtonText: { color: Colors.white, fontWeight: "600", fontSize: 14 },
+  form: { paddingHorizontal: 20, marginBottom: 16 },
   matchPicker: {
-    backgroundColor: Colors.inputBackground,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 14,
     marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
-  matchPickerText: {
-    color: Colors.text,
-    fontSize: 14,
-  },
-  matchPickerArrow: {
-    color: Colors.textMuted,
-    fontSize: 12,
-  },
+  matchPickerText: { fontSize: 14 },
+  matchPickerArrow: { fontSize: 12 },
   scoreRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 12,
     gap: 12,
   },
-  scoreTeam: {
-    flex: 1,
-    alignItems: 'center',
-    gap: 8,
-  },
-  scoreTeamName: {
-    color: Colors.textMuted,
-    fontSize: 13,
-    textAlign: 'center',
-  },
+  scoreTeam: { flex: 1, alignItems: "center", gap: 8 },
+  scoreTeamName: { fontSize: 13, textAlign: "center" },
   scoreInput: {
-    backgroundColor: Colors.inputBackground,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
     borderRadius: 10,
     paddingVertical: 12,
     fontSize: 20,
-    color: Colors.text,
-    width: '100%',
+    width: "100%",
   },
-  scoreSeparator: {
-    color: Colors.text,
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 20,
-  },
+  scoreSeparator: { fontSize: 24, fontWeight: "bold", marginTop: 20 },
   submitButton: {
     backgroundColor: Colors.secondary,
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 8,
   },
-  submitButtonText: {
-    color: Colors.white,
-    fontWeight: '600',
-    fontSize: 15,
-  },
+  submitButtonText: { color: Colors.white, fontWeight: "600", fontSize: 15 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
   },
   modalBox: {
-    backgroundColor: Colors.card,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
-    maxHeight: '70%',
+    maxHeight: "70%",
   },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.text,
-    marginBottom: 8,
-  },
-  editMatchName: {
-    fontSize: 14,
-    color: Colors.textMuted,
-    marginBottom: 16,
-  },
-  matchOption: {
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  matchOptionText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: Colors.text,
-  },
-  matchOptionDate: {
-    fontSize: 12,
-    color: Colors.textMuted,
-    marginTop: 2,
-  },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 8 },
+  editMatchName: { fontSize: 14, marginBottom: 16 },
+  matchOption: { paddingVertical: 14, borderBottomWidth: 1 },
+  matchOptionText: { fontSize: 15, fontWeight: "600" },
+  matchOptionDate: { fontSize: 12, marginTop: 2 },
   modalClose: {
-    backgroundColor: Colors.cardLight,
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
-  modalCloseText: {
-    color: Colors.text,
-    fontWeight: '600',
-  },
-  list: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  card: {
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
+  modalCloseText: { fontWeight: "600" },
+  list: { paddingHorizontal: 20, paddingBottom: 40 },
+  card: { borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1 },
   cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 6,
   },
-  matchInfo: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: Colors.text,
-    flex: 1,
-  },
-  betScore: {
-    fontSize: 14,
-    color: Colors.textMuted,
-    marginBottom: 12,
-  },
-  points: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: Colors.warning,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
+  matchInfo: { fontSize: 15, fontWeight: "bold", flex: 1 },
+  betScore: { fontSize: 14, marginBottom: 12 },
+  points: { fontSize: 14, fontWeight: "bold", color: Colors.warning },
+  actions: { flexDirection: "row", gap: 10 },
   editButton: {
     flex: 1,
     backgroundColor: Colors.primary,
     paddingVertical: 8,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  editButtonText: {
-    color: Colors.white,
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  editButtonText: { color: Colors.white, fontSize: 13, fontWeight: "600" },
   deleteButton: {
     flex: 1,
-    backgroundColor: Colors.cardLight,
     paddingVertical: 8,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  deleteButtonText: {
-    color: Colors.textMuted,
-    fontSize: 13,
-  },
-  empty: {
-    color: Colors.textMuted,
-    textAlign: 'center',
-    marginTop: 40,
-    fontSize: 14,
-  },
+  deleteButtonText: { fontSize: 13 },
+  empty: { textAlign: "center", marginTop: 40, fontSize: 14 },
 });
