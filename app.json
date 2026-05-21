@@ -2,6 +2,7 @@
   "expo": {
     "name": "BolãoFC",
     "slug": "bolaofc-mobile",
+    "owner": "luanbandeira",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -31,17 +32,17 @@
       "expo-router",
       "expo-secure-store"
     ],
-    "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "a149318f-6c3b-4274-8044-ac4395df22bc"
-      }
-    },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/a149318f-6c3b-4274-8044-ac4395df22bc"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "a149318f-6c3b-4274-8044-ac4395df22bc"
+      }
     }
   }
 }
