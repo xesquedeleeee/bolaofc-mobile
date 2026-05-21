@@ -7,12 +7,13 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
-} from 'react-native';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
-import api from '../../src/services/api';
-import { Colors } from '../../constants/theme';
+} from "react-native";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import api from "../../src/services/api";
+import { Colors } from "../../constants/theme";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 interface Match {
   id: string;
@@ -27,56 +28,63 @@ export default function ChampionshipDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const qc = useQueryClient();
+  const colors = useThemeColors();
   const [showForm, setShowForm] = useState(false);
-  const [homeTeam, setHomeTeam] = useState('');
-  const [awayTeam, setAwayTeam] = useState('');
-  const [matchDate, setMatchDate] = useState('');
-  const [homeScore, setHomeScore] = useState('');
-  const [awayScore, setAwayScore] = useState('');
+  const [homeTeam, setHomeTeam] = useState("");
+  const [awayTeam, setAwayTeam] = useState("");
+  const [matchDate, setMatchDate] = useState("");
+  const [homeScore, setHomeScore] = useState("");
+  const [awayScore, setAwayScore] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const { data: championship, isLoading } = useQuery({
-    queryKey: ['championship', id],
+    queryKey: ["championship", id],
     queryFn: () => api.get(`/championships/${id}`).then((r) => r.data),
   });
 
-  const { data: matches, isLoading: loadingMatches, refetch, isRefetching } = useQuery({
-    queryKey: ['matches', id],
+  const {
+    data: matches,
+    isLoading: loadingMatches,
+    refetch,
+    isRefetching,
+  } = useQuery({
+    queryKey: ["matches", id],
     queryFn: () => api.get(`/championships/${id}/matches`).then((r) => r.data),
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => api.post('/matches', data),
+    mutationFn: (data: any) => api.post("/matches", data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['matches', id] });
+      qc.invalidateQueries({ queryKey: ["matches", id] });
       setShowForm(false);
-      setHomeTeam('');
-      setAwayTeam('');
-      setMatchDate('');
+      setHomeTeam("");
+      setAwayTeam("");
+      setMatchDate("");
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível criar a partida.'),
+    onError: () => Alert.alert("Erro", "Não foi possível criar a partida."),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ matchId, data }: any) => api.put(`/matches/${matchId}`, data),
+    mutationFn: ({ matchId, data }: any) =>
+      api.put(`/matches/${matchId}`, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['matches', id] });
+      qc.invalidateQueries({ queryKey: ["matches", id] });
       setEditingId(null);
-      setHomeScore('');
-      setAwayScore('');
+      setHomeScore("");
+      setAwayScore("");
     },
-    onError: () => Alert.alert('Erro', 'Não foi possível atualizar o placar.'),
+    onError: () => Alert.alert("Erro", "Não foi possível atualizar o placar."),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (matchId: string) => api.delete(`/matches/${matchId}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['matches', id] }),
-    onError: () => Alert.alert('Erro', 'Não foi possível deletar a partida.'),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["matches", id] }),
+    onError: () => Alert.alert("Erro", "Não foi possível deletar a partida."),
   });
 
   function handleCreate() {
     if (!homeTeam || !awayTeam || !matchDate) {
-      Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
+      Alert.alert("Atenção", "Preencha todos os campos obrigatórios.");
       return;
     }
     createMutation.mutate({
@@ -88,8 +96,8 @@ export default function ChampionshipDetail() {
   }
 
   function handleUpdateScore(matchId: string) {
-    if (homeScore === '' || awayScore === '') {
-      Alert.alert('Atenção', 'Preencha os dois placares.');
+    if (homeScore === "" || awayScore === "") {
+      Alert.alert("Atenção", "Preencha os dois placares.");
       return;
     }
     updateMutation.mutate({
@@ -99,22 +107,26 @@ export default function ChampionshipDetail() {
   }
 
   function handleDelete(matchId: string) {
-    Alert.alert('Confirmar', 'Deseja deletar esta partida?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Deletar', style: 'destructive', onPress: () => deleteMutation.mutate(matchId) },
+    Alert.alert("Confirmar", "Deseja deletar esta partida?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Deletar",
+        style: "destructive",
+        onPress: () => deleteMutation.mutate(matchId),
+      },
     ]);
   }
 
   if (isLoading || loadingMatches) {
     return (
-      <View style={styles.centered}>
+      <View style={[styles.centered, { backgroundColor: colors.background }]}>
         <ActivityIndicator color={Colors.primary} size="large" />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.backText}>← Voltar</Text>
@@ -123,39 +135,66 @@ export default function ChampionshipDetail() {
           style={styles.addButton}
           onPress={() => setShowForm(!showForm)}
         >
-          <Text style={styles.addButtonText}>{showForm ? '✕' : '+ Partida'}</Text>
+          <Text style={styles.addButtonText}>
+            {showForm ? "✕" : "+ Partida"}
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.title}>{championship?.name}</Text>
-      <Text style={styles.subtitle}>Temporada {championship?.season}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        {championship?.name}
+      </Text>
+      <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+        Temporada {championship?.season}
+      </Text>
 
       {showForm && (
         <View style={styles.form}>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              },
+            ]}
             placeholder="Time da casa (ex: Brasil)"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={homeTeam}
             onChangeText={setHomeTeam}
           />
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              },
+            ]}
             placeholder="Time visitante (ex: Argentina)"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={awayTeam}
             onChangeText={setAwayTeam}
           />
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: colors.inputBackground,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              },
+            ]}
             placeholder="Data (ex: 2026-06-15)"
-            placeholderTextColor={Colors.textMuted}
+            placeholderTextColor={colors.textMuted}
             value={matchDate}
             onChangeText={setMatchDate}
           />
           <TouchableOpacity style={styles.submitButton} onPress={handleCreate}>
             <Text style={styles.submitButtonText}>
-              {createMutation.isPending ? 'Criando...' : 'Criar Partida'}
+              {createMutation.isPending ? "Criando..." : "Criar Partida"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -168,36 +207,61 @@ export default function ChampionshipDetail() {
         onRefresh={refetch}
         refreshing={isRefetching}
         renderItem={({ item }: { item: Match }) => (
-          <View style={styles.card}>
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
             <View style={styles.matchRow}>
-              <Text style={styles.team}>{item.homeTeam}</Text>
+              <Text style={[styles.team, { color: colors.text }]}>
+                {item.homeTeam}
+              </Text>
               <Text style={styles.vs}>
                 {item.homeScore !== null
                   ? `${item.homeScore} x ${item.awayScore}`
-                  : 'vs'}
+                  : "vs"}
               </Text>
-              <Text style={styles.team}>{item.awayTeam}</Text>
+              <Text style={[styles.team, { color: colors.text }]}>
+                {item.awayTeam}
+              </Text>
             </View>
 
-            <Text style={styles.date}>
-              📅 {new Date(item.matchDate).toLocaleDateString('pt-BR')}
+            <Text style={[styles.date, { color: colors.textMuted }]}>
+              📅 {new Date(item.matchDate).toLocaleDateString("pt-BR")}
             </Text>
 
             {editingId === item.id && (
               <View style={styles.scoreForm}>
                 <TextInput
-                  style={styles.scoreInput}
+                  style={[
+                    styles.scoreInput,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    },
+                  ]}
                   placeholder="Casa"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={colors.textMuted}
                   value={homeScore}
                   onChangeText={setHomeScore}
                   keyboardType="numeric"
                 />
-                <Text style={styles.scoreSeparator}>x</Text>
+                <Text style={[styles.scoreSeparator, { color: colors.text }]}>
+                  x
+                </Text>
                 <TextInput
-                  style={styles.scoreInput}
+                  style={[
+                    styles.scoreInput,
+                    {
+                      backgroundColor: colors.inputBackground,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    },
+                  ]}
                   placeholder="Fora"
-                  placeholderTextColor={Colors.textMuted}
+                  placeholderTextColor={colors.textMuted}
                   value={awayScore}
                   onChangeText={setAwayScore}
                   keyboardType="numeric"
@@ -213,26 +277,38 @@ export default function ChampionshipDetail() {
 
             <View style={styles.actions}>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: colors.cardLight },
+                ]}
                 onPress={() => {
                   setEditingId(editingId === item.id ? null : item.id);
-                  setHomeScore('');
-                  setAwayScore('');
+                  setHomeScore("");
+                  setAwayScore("");
                 }}
               >
-                <Text style={styles.actionText}>⚽ Placar</Text>
+                <Text style={[styles.actionText, { color: colors.textMuted }]}>
+                  ⚽ Placar
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.actionButton}
+                style={[
+                  styles.actionButton,
+                  { backgroundColor: colors.cardLight },
+                ]}
                 onPress={() => handleDelete(item.id)}
               >
-                <Text style={styles.actionText}>🗑️ Deletar</Text>
+                <Text style={[styles.actionText, { color: colors.textMuted }]}>
+                  🗑️ Deletar
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>Nenhuma partida cadastrada ainda.</Text>
+          <Text style={[styles.empty, { color: colors.textMuted }]}>
+            Nenhuma partida cadastrada ainda.
+          </Text>
         }
       />
     </View>
@@ -242,19 +318,17 @@ export default function ChampionshipDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
     paddingTop: 60,
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.background,
+    justifyContent: "center",
+    alignItems: "center",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     marginBottom: 16,
   },
@@ -270,19 +344,17 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: Colors.white,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 14,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: "bold",
     paddingHorizontal: 20,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
-    color: Colors.textMuted,
     paddingHorizontal: 20,
     marginBottom: 20,
   },
@@ -291,25 +363,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   input: {
-    backgroundColor: Colors.inputBackground,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 14,
-    color: Colors.text,
     marginBottom: 10,
   },
   submitButton: {
     backgroundColor: Colors.primary,
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
   },
   submitButtonText: {
     color: Colors.white,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 15,
   },
   list: {
@@ -317,60 +386,52 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: Colors.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   matchRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
   },
   team: {
     fontSize: 15,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: "bold",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   vs: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.primary,
     paddingHorizontal: 8,
   },
   date: {
     fontSize: 12,
-    color: Colors.textMuted,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 10,
   },
   scoreForm: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     marginBottom: 10,
   },
   scoreInput: {
     flex: 1,
-    backgroundColor: Colors.inputBackground,
     borderWidth: 1,
-    borderColor: Colors.inputBorder,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 16,
-    color: Colors.text,
-    textAlign: 'center',
+    textAlign: "center",
   },
   scoreSeparator: {
-    color: Colors.text,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   saveButton: {
     backgroundColor: Colors.success,
@@ -380,27 +441,24 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: Colors.white,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
     marginTop: 4,
   },
   actionButton: {
     flex: 1,
-    backgroundColor: Colors.cardLight,
     paddingVertical: 8,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   actionText: {
-    color: Colors.textMuted,
     fontSize: 13,
   },
   empty: {
-    color: Colors.textMuted,
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 40,
     fontSize: 14,
   },
