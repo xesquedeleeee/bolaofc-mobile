@@ -1,60 +1,54 @@
-import { Tabs } from 'expo-router';
-import { Colors } from '../../constants/theme';
+import { Tabs } from "expo-router";
+import { Text } from "react-native";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
+
+function TabIcon({ emoji }: { emoji: string }) {
+  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
+}
 
 export default function TabsLayout() {
+  const colors = useThemeColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors.card,
-          borderTopColor: Colors.border,
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
         },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="🏠" color={color} />
-          ),
+          title: "Home",
+          tabBarIcon: () => <TabIcon emoji="🏠" />,
         }}
       />
       <Tabs.Screen
         name="championships"
         options={{
-          title: 'Campeonatos',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="🏆" color={color} />
-          ),
+          title: "Campeonatos",
+          tabBarIcon: () => <TabIcon emoji="🏆" />,
         }}
       />
       <Tabs.Screen
         name="bets"
         options={{
-          title: 'Palpites',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="🎯" color={color} />
-          ),
+          title: "Palpites",
+          tabBarIcon: () => <TabIcon emoji="🎯" />,
         }}
       />
       <Tabs.Screen
         name="ranking"
         options={{
-          title: 'Ranking',
-          tabBarIcon: ({ color }) => (
-            <TabIcon emoji="🏅" color={color} />
-          ),
+          title: "Ranking",
+          tabBarIcon: () => <TabIcon emoji="🏅" />,
         }}
       />
     </Tabs>
   );
-}
-
-function TabIcon({ emoji, color }: { emoji: string; color: string }) {
-  const { Text } = require('react-native');
-  return <Text style={{ fontSize: 20 }}>{emoji}</Text>;
 }
