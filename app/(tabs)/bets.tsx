@@ -67,7 +67,7 @@ export default function Bets() {
 
   const { data: matches } = useQuery({
     queryKey: ["all-matches"],
-    queryFn: () => api.get("/matches").then((r) => r.data),
+    queryFn: () => api.get("/matches?available=true").then((r) => r.data),
   });
 
   const createMutation = useMutation({
