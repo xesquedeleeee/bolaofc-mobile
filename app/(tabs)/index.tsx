@@ -4,30 +4,60 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { Colors } from '../../constants/theme';
-import useAuthStore from '../../src/store/authStore';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { Colors } from "../../constants/theme";
+import useAuthStore from "../../src/store/authStore";
+import useThemeStore from "../../src/store/themeStore";
+import { useThemeColors } from "../../src/hooks/useThemeColors";
 
 export default function Home() {
   const { user, logout } = useAuthStore();
+  const { isDark, toggleTheme } = useThemeStore();
+  const colors = useThemeColors();
   const router = useRouter();
 
   function handleLogout() {
     logout();
-    router.replace('/(auth)/login');
+    router.replace("/(auth)/login");
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Olá, {user?.name} 👋</Text>
-          <Text style={styles.subtitle}>Bem-vindo ao BolãoFC!</Text>
+          <Text style={[styles.greeting, { color: colors.text }]}>
+            Olá, {user?.name} 👋
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
+            Bem-vindo ao BolãoFC!
+          </Text>
         </View>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Sair</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <TouchableOpacity
+            style={[
+              styles.logoutButton,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+            onPress={toggleTheme}
+          >
+            <Text style={{ fontSize: 16 }}>{isDark ? "☀️" : "🌙"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.logoutButton,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+            onPress={handleLogout}
+          >
+            <Text style={[styles.logoutText, { color: colors.textMuted }]}>
+              Sair
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.banner}>
@@ -38,43 +68,71 @@ export default function Home() {
         </Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Acesso Rápido</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        Acesso Rápido
+      </Text>
 
       <View style={styles.grid}>
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => router.push('/(tabs)/championships')}
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+          onPress={() => router.push("/(tabs)/championships")}
         >
           <Text style={styles.cardEmoji}>🏆</Text>
-          <Text style={styles.cardTitle}>Campeonatos</Text>
-          <Text style={styles.cardSubtitle}>Ver todos os campeonatos</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Campeonatos
+          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
+            Ver todos os campeonatos
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => router.push('/(tabs)/bets')}
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+          onPress={() => router.push("/(tabs)/bets")}
         >
           <Text style={styles.cardEmoji}>🎯</Text>
-          <Text style={styles.cardTitle}>Palpites</Text>
-          <Text style={styles.cardSubtitle}>Registre seus palpites</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Palpites
+          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
+            Registre seus palpites
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => router.push('/(tabs)/ranking')}
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+          onPress={() => router.push("/(tabs)/ranking")}
         >
           <Text style={styles.cardEmoji}>🏅</Text>
-          <Text style={styles.cardTitle}>Ranking</Text>
-          <Text style={styles.cardSubtitle}>Veja a classificação</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>
+            Ranking
+          </Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
+            Veja a classificação
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => router.push('/sobre')}
+          style={[
+            styles.card,
+            { backgroundColor: colors.card, borderColor: colors.border },
+          ]}
+          onPress={() => router.push("/sobre")}
         >
           <Text style={styles.cardEmoji}>ℹ️</Text>
-          <Text style={styles.cardTitle}>Sobre</Text>
-          <Text style={styles.cardSubtitle}>Sobre o app</Text>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>Sobre</Text>
+          <Text style={[styles.cardSubtitle, { color: colors.textMuted }]}>
+            Sobre o app
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -84,7 +142,6 @@ export default function Home() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   content: {
     paddingHorizontal: 20,
@@ -92,38 +149,33 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 24,
   },
   greeting: {
     fontSize: 22,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: "bold",
   },
   subtitle: {
     fontSize: 13,
-    color: Colors.textMuted,
     marginTop: 2,
   },
   logoutButton: {
-    backgroundColor: Colors.card,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   logoutText: {
-    color: Colors.textMuted,
     fontSize: 13,
   },
   banner: {
     backgroundColor: Colors.primary,
     borderRadius: 16,
     padding: 24,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 28,
   },
   bannerEmoji: {
@@ -132,33 +184,30 @@ const styles = StyleSheet.create({
   },
   bannerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: Colors.white,
     marginBottom: 6,
   },
   bannerSubtitle: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.8)',
-    textAlign: 'center',
+    color: "rgba(255,255,255,0.8)",
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: "bold",
     marginBottom: 16,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   card: {
-    backgroundColor: Colors.card,
     borderRadius: 12,
     padding: 16,
-    width: '47%',
+    width: "47%",
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   cardEmoji: {
     fontSize: 28,
@@ -166,12 +215,10 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 15,
-    fontWeight: 'bold',
-    color: Colors.text,
+    fontWeight: "bold",
     marginBottom: 4,
   },
   cardSubtitle: {
     fontSize: 12,
-    color: Colors.textMuted,
   },
 });
