@@ -63,6 +63,7 @@ function RootLayoutNav() {
         <Stack.Screen name="perfil-alexis" />
         <Stack.Screen name="perfil-levi" />
         <Stack.Screen name="championship/[id]" />
+        <Stack.Screen name="perfil-usuario" />
       </Stack>
     </>
   );
