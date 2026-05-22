@@ -11,7 +11,16 @@ import { Colors } from "../../constants/theme";
 import useAuthStore from "../../src/store/authStore";
 import useThemeStore from "../../src/store/themeStore";
 import { useThemeColors } from "../../src/hooks/useThemeColors";
-import { Trophy, Target, Medal, Info, Sun, Moon, LogOut } from "lucide-react-native";
+import {
+  Trophy,
+  Target,
+  Medal,
+  Info,
+  Sun,
+  Moon,
+  LogOut,
+  UserCircle,
+} from "lucide-react-native";
 
 export default function Home() {
   const { user, logout } = useAuthStore();
@@ -46,7 +55,20 @@ export default function Home() {
             ]}
             onPress={toggleTheme}
           >
-          {isDark ? <Sun color={colors.textMuted} size={18} /> : <Moon color={colors.textMuted} size={18} />}
+            {isDark ? (
+              <Sun color={colors.textMuted} size={18} />
+            ) : (
+              <Moon color={colors.textMuted} size={18} />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.logoutButton,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+            onPress={() => router.push("/perfil-usuario")}
+          >
+            <UserCircle color={colors.textMuted} size={18} />
           </TouchableOpacity>
           <TouchableOpacity
             style={[
@@ -55,7 +77,7 @@ export default function Home() {
             ]}
             onPress={handleLogout}
           >
-          <LogOut color={colors.textMuted} size={18} />
+            <LogOut color={colors.textMuted} size={18} />
           </TouchableOpacity>
         </View>
       </View>
@@ -66,10 +88,10 @@ export default function Home() {
           style={styles.bannerLogo}
           resizeMode="contain"
         />
-    <Text style={[styles.bannerSubtitle, { color: colors.textMuted }]}>
-      FAÇA SEUS PALPITES E DISPUTE COM AMIGOS!
-    </Text>
-</View>
+        <Text style={[styles.bannerSubtitle, { color: colors.textMuted }]}>
+          FAÇA SEUS PALPITES E DISPUTE COM AMIGOS!
+        </Text>
+      </View>
 
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
         Acesso Rápido
@@ -166,7 +188,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   logoutButton: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
     borderWidth: 1,
@@ -175,9 +197,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   banner: {
-  alignItems: "center",
-  paddingVertical: 24,
-  marginBottom: 20,
+    alignItems: "center",
+    paddingVertical: 24,
+    marginBottom: 20,
   },
   bannerTitle: {
     fontSize: 24,
@@ -187,7 +209,6 @@ const styles = StyleSheet.create({
   },
   bannerSubtitle: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.8)",
     textAlign: "center",
   },
   sectionTitle: {
@@ -214,12 +235,12 @@ const styles = StyleSheet.create({
   cardSubtitle: {
     fontSize: 12,
   },
-  bannerLogo: { 
+  bannerLogo: {
     width: 150,
-    height: 150, 
-    marginBottom: 10 
+    height: 150,
+    marginBottom: 10,
   },
- cardIcon: {
-   marginBottom: 10 
+  cardIcon: {
+    marginBottom: 10,
   },
 });
